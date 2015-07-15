@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Real-time Compiler</title>
+        <meta name="description" content="Real time compile java code">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="author" content="liaoyu">
+        <meta name="url" content="http://www.neatap.com">
+        <link rel="stylesheet" href="vendor/bootstrap.min.css">
+	    <style type="text/css">
+	    	body {
+	    		padding-top: 60px;
+	    	}
+	    </style>
+    </head>
+    <body ng-app="rcapp" ng-controller="rcController">
+
+	<div class="navbar navbar-default navbar-fixed-top">
+	  <div class="container">
+	    <div class="navbar-header">
+	      <a href="/rcapp" class="navbar-brand">Real-time Compile Java Code</a>
+	    </div>
+	     <div class="navbar-collapse collapse" id="navbar-main">
+	     <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://www.neatap.com" target="_blank">Created By liaoyu</a></li>
+          </ul>
+	     </div>
+	  </div>
+	</div>
+        
+	<div class="container">
+       <div class="well bs-component col-lg-12">
+         <form class="form-horizontal">
+           <fieldset>
+             <legend>Java Code</legend>
+             <div class="form-group">
+               <div class="col-lg-12">
+                 <textarea class="form-control" rows="16" ng-model="code"></textarea>
+                 <span class="help-block">Paste your java code here and click button "run". (this class must have main method)</span>
+               </div>
+             </div>
+             <div class="form-group">
+               <div class="col-lg-12">
+                 <button class="btn btn-success" ng-click="runCode()" ng-disabled="!runAble">Run</button>
+               </div>
+             </div>
+             </fieldset>
+           </form>
+         </div>
+         
+         <div class="well col-lg-12" ng-show="resultShow">
+           <fieldset>
+	           <legend>Console</legend>
+	           <div class="bs-component">
+	             <textarea class="form-control" rows="6">{{ result }}</textarea>
+	           </div>
+		 </fieldset>
+         </div>
+	</div>
+
+    <script src="vendor/angular.min.js"></script>
+    <script type="text/javascript">
+    	var app = angular.module("rcapp", []);
+    	app.controller("rcController", function($scope, $http){
+    	  $scope.code = "" +
+		    	  "public class HelloWorld {\n" +
+		    	  "    public static void main(String[] args) {\n"+
+		    	  "        System.out.println(\"Cafe babe.\");\n"+
+		    	  "    }\n"+
+		    	  "}";
+    	  $scope.result = "";
+    	  $scope.runAble = true;
+    	  $scope.resultShow = false;
+    	  
+    	  // Send the request to compile code
+    	  $scope.runCode = function() {
+    	    $http.get("/rcapp/RequestHandler", {
+    	      params: {
+    	        "code": $scope.code
+    	      }
+    	    }).success(function(response){
+    	      $scope.result = response;
+    	      $scope.resultShow = true;
+    	    });
+    	  }
+    	  
+    	  // Watch the button run is disabled or not
+    	  $scope.$watch("code", function() {
+    	    if ($scope.code.trim().length > 0) {
+    	      $scope.runAble = true;
+    	    } else {
+    	      $scope.runAble = false;
+    	    }
+    	  });
+    	});
+    </script>
+    </body>
+</html>
